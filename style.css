@@ -1,0 +1,64 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    height: 100vh;
+}
+
+/* Contains everything (the buttons, the display, ...) */
+.calcFrame {
+    display: flex;
+    /* flex: 1 1 100px; */
+    flex-direction: column;
+    outline: auto;
+    padding: 10px;
+    background-color: rgba(0,0,0,50%);
+}
+
+/* Display the result */
+.display {
+    flex: 1 0 auto;
+    outline: auto;
+    padding: 5px;
+    background-color: white;
+    margin-bottom: 20px;
+}
+
+.upper {
+    height: 20px;
+    display: flex;
+}
+
+.lower {
+    height: 20px;
+    display: flex;
+    align-items: end;
+    justify-content: flex-end;
+}
+
+/* Default btn size, and behavior */
+.btn {
+    flex: auto;
+    width: 50px;
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    /* outline: auto; */
+    margin-bottom: 5px;
+}
+
+.btn:hover {
+    opacity: 80%;
+}
+
+#del, #ac {
+    background-color: orange;
+}
+
+/* Split the last row into left and right */
+.forthRow {
+    display: flex;
+    justify-content: space-between;
+}
+
