@@ -30,6 +30,9 @@ function multiply(a, b) {
 }
 
 function divide(a, b) {
+    if (b === 0) {
+        return "Div by zero error!";
+    }
     return a / b;
 }
 
@@ -57,20 +60,93 @@ const ansDisplay = document.querySelector(".lower");
 const btnPress = document.querySelectorAll(".btn");
 
 let ans = 0;
+let operating = false;
+let doubling = false;
+const sign = ['+', '-', '*', '/'];
+
 btnPress.forEach(btn => {btn.addEventListener("click", () => {
     if (digitsAndStuff.find(digit => digit.id === btn.id)) {
+
+        // If there is no previous ANS, function normally
         if (ansDisplay.textContent === "") {
-            display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
-        } else {
-            if (btn.id === "mul" || btn.id === "div" ||btn.id === "plus" ||btn.id === "minus") {
+
+            // Not already in an operation
+            if ((btn.id === "mul" || btn.id === "div" ||btn.id === "plus" ||btn.id === "minus") && operating === false) {
+                operating = true;
+                display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+            } 
+            
+            // Working on this
+            else if ((btn.id === "mul" || btn.id === "div" ||btn.id === "plus" ||btn.id === "minus") && operating === true) {
+                const index = [...display.textContent].findIndex(char => sign.includes(char));
+                let firstNum = display.textContent.substring(0, index);
+                let secondNum = display.textContent.substring(index + 1, display.textContent.length);
+                let operater = display.textContent.charAt(index);
+
+                if (operating === true && (firstNum === "" || secondNum === "")) {
+                    operating = false;
+                    doubling = true;
+                    display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+                } else {
+                    console.log('no');
+                    // Should not jump into this if there is an operator already
+                    ansDisplay.textContent = operate((firstNum === "ANS" ? ans : firstNum), operater, (secondNum === "ANS" ? ans : secondNum));
+                    ans = parseFloat(ansDisplay.textContent);
+                    if (!Number.isNaN(ans)) {
+                        display.textContent = `ANS${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+                    } else {
+                        display.textContent = "";
+                        ansDisplay.textContent = (Number.isNaN(ans)) ? "Div by zero error!" : ans;
+                        ans = NaN;
+                        operating = false;
+                    }
+                }
+            } else {
+                display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+                ansDisplay.textContent = "";
+            }
+        }
+
+        // If there are previous ans, save it and do calculation accordingly
+        else {
+            // If not already in an operation
+            if ((btn.id === "mul" || btn.id === "div" ||btn.id === "plus" ||btn.id === "minus") && operating === false) {
+                operating = true;
                 display.textContent = `ANS${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
                 ansDisplay.textContent = "";
-            } else {
+            } 
+            
+            // Working on this
+            else if ((btn.id !== "mul" && btn.id !== "div" && btn.id !== "plus" && btn.id !== "minus") && operating === true){
+                display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+            }
+            else if ((btn.id === "mul" || btn.id === "div" ||btn.id === "plus" ||btn.id === "minus") && operating === true) {
+                const index = [...display.textContent].findIndex(char => sign.includes(char));
+                let firstNum = display.textContent.substring(0, index);
+                let secondNum = display.textContent.substring(index + 1, display.textContent.length);
+                let operater = display.textContent.charAt(index);
+
+                if (firstNum === "" || secondNum === "") {
+                    ansDisplay.textContent === "Can't do that!";
+                } else {
+                    ansDisplay.textContent = operate((firstNum === "ANS" ? ans : firstNum), operater, (secondNum === "ANS" ? ans : secondNum));
+                    ans = parseFloat(ansDisplay.textContent);
+
+                    display.textContent = `ANS${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+                    ansDisplay.textContent = ans;
+                }
+            }
+
+            else {
                 display.textContent = `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
                 ansDisplay.textContent = "";
             }
         }
-    } else if (btn.id === "ac") {
+    }
+
+    // The rest of the buttons
+    else if (btn.id === "ac") {
+        operating = false;
         display.textContent = "";
         ansDisplay.textContent = "";
         ans = 0;
@@ -82,24 +158,43 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
                 display.textContent = `${display.textContent.substring(0, display.textContent.length - 1)}`;
             }
             ansDisplay.textContent = "";
+        } 
+        // ??? TESTING
+        else if (ansDisplay.textContent !== "" && operating === true) {
+            if (display.textContent.charAt(display.textContent.length - 1) === "S") {
+                display.textContent = `${display.textContent.substring(0, display.textContent.length - 3)}`;
+            } else {
+                display.textContent = `${display.textContent.substring(0, display.textContent.length - 1)}`;
+            }
+            ansDisplay.textContent = "";
+            operating = false;
         }
     } else if (btn.id === "equals") {
-        const sign = ['+', '-', '*', '/'];
-        const index = [...display.textContent].findIndex(char => sign.includes(char));
-        let firstNum = display.textContent.substring(0, index);
-        let secondNum = display.textContent.substring(index + 1, display.textContent.length);
-        let operater = display.textContent.charAt(index);
-        ansDisplay.textContent = operate((firstNum === "ANS" ? ans : firstNum), operater, (secondNum=== "ANS" ? ans : secondNum));
-        console.log(firstNum);
-        console.log(secondNum);
-        ans = parseFloat(ansDisplay.textContent);
+        if (doubling !== true) {
+            const index = [...display.textContent].findIndex(char => sign.includes(char));
+            let firstNum = display.textContent.substring(0, index);
+            let secondNum = display.textContent.substring(index + 1, display.textContent.length);
+            let operater = display.textContent.charAt(index);
+            ansDisplay.textContent = operate((firstNum === "ANS" ? ans : firstNum), operater, (secondNum=== "ANS" ? ans : secondNum));
+            ans = parseFloat(ansDisplay.textContent);
+            operating = false;
+        } else if (doubling == true) {
+            ansDisplay.textContent = "Too Advanced!";
+            ans = NaN;
+            doubling = false;
+        }
     } else if (btn.id === "ans") {
-        if (ansDisplay.textContent !== "") {
+        if (ansDisplay.textContent !== "" && operating === false) {
             display.textContent = "ANS";
             ansDisplay.textContent = "";
-        } else {
+        } else if (ansDisplay.text !== "" && operating === true) {
+            display.textContent += "ANS";
+            // What this for???
+            // ansDisplay.textContent = ans;
+        }
+        else {
             ansDisplay.textContent = "";
-        display.textContent += "ANS";
+            display.textContent += "ANS";
         }
     }
 })});

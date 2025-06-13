@@ -1,4 +1,12 @@
 body {
+    background-image: url(https://static.vecteezy.com/system/resources/thumbnails/024/094/943/small_2x/pencil-graphite-supply-free-png.png),
+    url(/home/sh0101/Downloads/stickyFree-removebg-preview.png),
+    url(/home/sh0101/Downloads/freepng-removebg-preview.png),
+    url(/home/sh0101/Downloads/brown-wooden-floor.jpg);
+    background-repeat: no-repeat;
+    background-position: top 50px right 100px, top 90px left 20px, bottom -100px right 30px, center center;
+    background-size: 250px, 250px, 600px, auto;
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,10 +18,26 @@ body {
 .calcFrame {
     display: flex;
     /* flex: 1 1 100px; */
+    border-radius: 8px;
     flex-direction: column;
-    outline: auto;
+    outline: solid 5px gray;
     padding: 10px;
-    background-color: rgba(0,0,0,50%);
+    background-color: rgba(0,0,0,100%);
+}
+
+/* Texts */
+.name {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    color: greenyellow;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.moveable-img {
+
 }
 
 /* Display the result */
@@ -44,8 +68,8 @@ body {
     height: 40px;
     border: none;
     border-radius: 8px;
+    margin-bottom: 15px;
     /* outline: auto; */
-    margin-bottom: 5px;
 }
 
 .btn:hover {
