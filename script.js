@@ -38,7 +38,7 @@ function divide(a, b) {
 
 // Buttons function
 const digitsAndStuff = [
-    {id : 'decimal', num : '.'},
+    // {id : 'decimal', num : '.'},
     {id : 'zero', num : 0},
     {id : 'one' , num : 1},
     {id : 'two', num : 2},
@@ -60,8 +60,13 @@ const ansDisplay = document.querySelector(".lower");
 const btnPress = document.querySelectorAll(".btn");
 
 let ans = 0;
+
+// Keeping track of which side of the operator I am on
+let position = 0;
+
 let operating = false;
 let doubling = false;
+let decimal = [false, false];
 const sign = ['+', '-', '*', '/'];
 
 btnPress.forEach(btn => {btn.addEventListener("click", () => {
@@ -73,6 +78,7 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
             // Not already in an operation
             if ((btn.id === "mul" || btn.id === "div" ||btn.id === "plus" ||btn.id === "minus") && operating === false) {
                 operating = true;
+                position = 1;
                 display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
             } 
             
@@ -101,6 +107,10 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
                         operating = false;
                     }
                 }
+                
+                // Enable the decimal for the particular operation
+                decimal[position] = false;
+
             } else {
                 display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
                 ansDisplay.textContent = "";
@@ -110,17 +120,18 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
         // If there are previous ans, save it and do calculation accordingly
         else {
             // If not already in an operation
-            if ((btn.id === "mul" || btn.id === "div" ||btn.id === "plus" ||btn.id === "minus") && operating === false) {
+            if ((btn.id === "mul" || btn.id === "div" || btn.id === "plus" || btn.id === "minus") && operating === false) {
                 operating = true;
                 display.textContent = `ANS${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
                 ansDisplay.textContent = "";
+                position = 1;
             } 
             
             // Working on this
             else if ((btn.id !== "mul" && btn.id !== "div" && btn.id !== "plus" && btn.id !== "minus") && operating === true){
                 display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
             }
-            else if ((btn.id === "mul" || btn.id === "div" ||btn.id === "plus" ||btn.id === "minus") && operating === true) {
+            else if ((btn.id === "mul" || btn.id === "div" || btn.id === "plus" || btn.id === "minus") && operating === true) {
                 const index = [...display.textContent].findIndex(char => sign.includes(char));
                 let firstNum = display.textContent.substring(0, index);
                 let secondNum = display.textContent.substring(index + 1, display.textContent.length);
@@ -135,8 +146,8 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
                     display.textContent = `ANS${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
                     ansDisplay.textContent = ans;
                 }
+                decimal[position] = false;
             }
-
             else {
                 display.textContent = `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
                 ansDisplay.textContent = "";
@@ -150,38 +161,57 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
         display.textContent = "";
         ansDisplay.textContent = "";
         ans = 0;
+        decimal = false;
+        position = 0;
     } else if (btn.id === "del") {
-        if (ansDisplay.textContent === "") {
+        if (ansDisplay.textContent === "" || (ansDisplay.textContent !== "" && operating === true)) {
             if (display.textContent.charAt(display.textContent.length - 1) === "S") {
                 display.textContent = `${display.textContent.substring(0, display.textContent.length - 3)}`;
+            } else if (display.textContent.charAt(display.textContent.length - 1) === ".") {
+                display.textContent = `${display.textContent.substring(0, display.textContent.length - 1)}`;
+                decimal[position] = false;
+            } else if (sign.includes(display.textContent.charAt(display.textContent.length - 1))) {
+                console.log("testing this");
+                display.textContent = `${display.textContent.substring(0, display.textContent.length - 1)}`;
+                decimal[position] = false;
+                position = 0;
             } else {
                 display.textContent = `${display.textContent.substring(0, display.textContent.length - 1)}`;
+                operating = false;
             }
             ansDisplay.textContent = "";
         } 
         // ??? TESTING
-        else if (ansDisplay.textContent !== "" && operating === true) {
-            if (display.textContent.charAt(display.textContent.length - 1) === "S") {
-                display.textContent = `${display.textContent.substring(0, display.textContent.length - 3)}`;
-            } else {
-                display.textContent = `${display.textContent.substring(0, display.textContent.length - 1)}`;
-            }
-            ansDisplay.textContent = "";
-            operating = false;
-        }
+        // else if (ansDisplay.textContent !== "" && operating === true) {
+        //     if (display.textContent.charAt(display.textContent.length - 1) === "S") {
+        //         display.textContent = `${display.textContent.substring(0, display.textContent.length - 3)}`;
+        //     } else {
+        //         display.textContent = `${display.textContent.substring(0, display.textContent.length - 1)}`;
+        //     }
+        //     ansDisplay.textContent = "";
+        //     operating = false;
+        // }
     } else if (btn.id === "equals") {
-        if (doubling !== true) {
-            const index = [...display.textContent].findIndex(char => sign.includes(char));
-            let firstNum = display.textContent.substring(0, index);
-            let secondNum = display.textContent.substring(index + 1, display.textContent.length);
-            let operater = display.textContent.charAt(index);
-            ansDisplay.textContent = operate((firstNum === "ANS" ? ans : firstNum), operater, (secondNum=== "ANS" ? ans : secondNum));
-            ans = parseFloat(ansDisplay.textContent);
-            operating = false;
-        } else if (doubling == true) {
-            ansDisplay.textContent = "Too Advanced!";
-            ans = NaN;
-            doubling = false;
+        if (operating === false) {
+            ans = Math.round(parseFloat(display.textContent === 'ANS' ? ans : display.textContent) * 10) / 10;
+            ansDisplay.textContent = ans;
+            console.log('here');
+        } else {
+            if (doubling !== true) {
+                const index = [...display.textContent].findIndex(char => sign.includes(char));
+                let firstNum = display.textContent.substring(0, index);
+                let secondNum = display.textContent.substring(index + 1, display.textContent.length);
+                let operater = display.textContent.charAt(index);
+                ansDisplay.textContent = operate((firstNum === "ANS" ? ans : firstNum), operater, (secondNum=== "ANS" ? ans : secondNum));
+                ans = Math.round(parseFloat(ansDisplay.textContent) * 10) / 10;
+                operating = false;
+            } else if (doubling == true) {
+                ansDisplay.textContent = "Too Advanced!";
+                ans = NaN;
+                doubling = false;
+            }
+            decimal = false;
+            position = 0;
         }
     } else if (btn.id === "ans") {
         if (ansDisplay.textContent !== "" && operating === false) {
@@ -191,10 +221,16 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
             display.textContent += "ANS";
             // What this for???
             // ansDisplay.textContent = ans;
-        }
-        else {
+        } else  {
             ansDisplay.textContent = "";
             display.textContent += "ANS";
+        }
+    } else if (btn.id === "decimal") {
+        if (decimal[position] !== true) {
+            console.log(position);
+            console.log(decimal[position]);
+            display.textContent += `.`;
+            decimal = true;
         }
     }
 })});
