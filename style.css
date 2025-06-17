@@ -1,8 +1,8 @@
 body {
     background-image: url(https://static.vecteezy.com/system/resources/thumbnails/024/094/943/small_2x/pencil-graphite-supply-free-png.png),
-    url(/home/sh0101/Downloads/stickyFree-removebg-preview.png),
-    url(/home/sh0101/Downloads/freepng-removebg-preview.png),
-    url(/home/sh0101/Downloads/brown-wooden-floor.jpg);
+    url(pics/stickyFree-removebg-preview.png),
+    url(pics/freepng-removebg-preview.png),
+    url(pics/brown-wooden-floor.jpg);
     background-repeat: no-repeat;
     background-position: top 50px right 100px, top 90px left 20px, bottom -100px right 30px, center center;
     background-size: 250px, 250px, 600px, auto;
