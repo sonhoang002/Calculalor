@@ -66,24 +66,64 @@ let position = 0;
 
 let operating = false;
 let doubling = false;
+let single = true;
 let decimal = [false, false];
 const sign = ['+', '-', '*', '/'];
 
+// Mouse/buttons Event
 btnPress.forEach(btn => {btn.addEventListener("click", () => {
-    if (digitsAndStuff.find(digit => digit.id === btn.id)) {
+    handleInput(btn.id);
+})});
+
+// Keyboard event
+document.addEventListener("keydown", (e) => {
+    const keyMap = {
+        "." : "decimal",
+        "Backspace" : "del",
+        "c" : "ac",
+        "a" : "ans",
+        "Enter" : "equals",
+        "*": "mul",
+        "/": "div",
+        "+": "plus",
+        "-": "minus",
+        "0" : "zero",
+        "1": "one",
+        "2": "two",
+        "3": "three",
+        "4": "four",
+        "5": "five",
+        "6": "six",
+        "7": "seven",
+        "8": "eight",
+        "9": "nine",
+    };
+
+    const inputId = keyMap[e.key];
+    if (inputId) {
+        handleInput(inputId);
+    }
+});
+
+
+// THE function
+function handleInput(inputId) {
+    console.log(doubling);
+    if (digitsAndStuff.find(digit => digit.id === inputId)) {
 
         // If there is no previous ANS, function normally
         if (ansDisplay.textContent === "") {
 
             // Not already in an operation
-            if ((btn.id === "mul" || btn.id === "div" ||btn.id === "plus" ||btn.id === "minus") && operating === false) {
+            if ((inputId === "mul" || inputId === "div" ||inputId === "plus" ||inputId === "minus") && operating === false) {
                 operating = true;
                 position = 1;
-                display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+                single = false;
+                display.textContent += `${digitsAndStuff.find(digit => digit.id === inputId).num}`;
             } 
             
             // Working on this
-            else if ((btn.id === "mul" || btn.id === "div" ||btn.id === "plus" ||btn.id === "minus") && operating === true) {
+            else if ((inputId === "mul" || inputId === "div" ||inputId === "plus" ||inputId === "minus") && operating === true) {
                 const index = [...display.textContent].findIndex(char => sign.includes(char));
                 let firstNum = display.textContent.substring(0, index);
                 let secondNum = display.textContent.substring(index + 1, display.textContent.length);
@@ -92,14 +132,14 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
                 if (operating === true && (firstNum === "" || secondNum === "")) {
                     operating = false;
                     doubling = true;
-                    display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+                    display.textContent += `${digitsAndStuff.find(digit => digit.id === inputId).num}`;
                 } else {
                     console.log('no');
                     // Should not jump into this if there is an operator already
                     ansDisplay.textContent = operate((firstNum === "ANS" ? ans : firstNum), operater, (secondNum === "ANS" ? ans : secondNum));
                     ans = parseFloat(ansDisplay.textContent);
                     if (!Number.isNaN(ans)) {
-                        display.textContent = `ANS${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+                        display.textContent = `ANS${digitsAndStuff.find(digit => digit.id === inputId).num}`;
                     } else {
                         display.textContent = "";
                         ansDisplay.textContent = (Number.isNaN(ans)) ? "Div by zero error!" : ans;
@@ -107,12 +147,13 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
                         operating = false;
                     }
                 }
-                
+
                 // Enable the decimal for the particular operation
                 decimal[position] = false;
+                single = false;
 
             } else {
-                display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+                display.textContent += `${digitsAndStuff.find(digit => digit.id === inputId).num}`;
                 ansDisplay.textContent = "";
             }
         }
@@ -120,18 +161,18 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
         // If there are previous ans, save it and do calculation accordingly
         else {
             // If not already in an operation
-            if ((btn.id === "mul" || btn.id === "div" || btn.id === "plus" || btn.id === "minus") && operating === false) {
+            if ((inputId === "mul" || inputId === "div" || inputId === "plus" || inputId === "minus") && operating === false) {
+                single = false;
                 operating = true;
-                display.textContent = `ANS${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+                display.textContent = `ANS${digitsAndStuff.find(digit => digit.id === inputId).num}`;
                 ansDisplay.textContent = "";
                 position = 1;
             } 
-            
-            // Working on this
-            else if ((btn.id !== "mul" && btn.id !== "div" && btn.id !== "plus" && btn.id !== "minus") && operating === true){
-                display.textContent += `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+            else if ((inputId !== "mul" && inputId !== "div" && inputId !== "plus" && inputId !== "minus") && operating === true){
+                console.log("not here");
+                display.textContent += `${digitsAndStuff.find(digit => digit.id === inputId).num}`;
             }
-            else if ((btn.id === "mul" || btn.id === "div" || btn.id === "plus" || btn.id === "minus") && operating === true) {
+            else if ((inputId === "mul" || inputId === "div" || inputId === "plus" || inputId === "minus") && operating === true) {
                 const index = [...display.textContent].findIndex(char => sign.includes(char));
                 let firstNum = display.textContent.substring(0, index);
                 let secondNum = display.textContent.substring(index + 1, display.textContent.length);
@@ -143,27 +184,30 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
                     ansDisplay.textContent = operate((firstNum === "ANS" ? ans : firstNum), operater, (secondNum === "ANS" ? ans : secondNum));
                     ans = parseFloat(ansDisplay.textContent);
 
-                    display.textContent = `ANS${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+                    display.textContent = `ANS${digitsAndStuff.find(digit => digit.id === inputId).num}`;
                     ansDisplay.textContent = ans;
                 }
                 decimal[position] = false;
+                single = false;
             }
             else {
-                display.textContent = `${digitsAndStuff.find(digit => digit.id === btn.id).num}`;
+                display.textContent = `${digitsAndStuff.find(digit => digit.id === inputId).num}`;
                 ansDisplay.textContent = "";
             }
         }
     }
 
     // The rest of the buttons
-    else if (btn.id === "ac") {
+    else if (inputId === "ac") {
+        single = true;
         operating = false;
         display.textContent = "";
         ansDisplay.textContent = "";
         ans = 0;
-        decimal = false;
+        decimal[0] = false;
+        decimal[1] = false;
         position = 0;
-    } else if (btn.id === "del") {
+    } else if (inputId === "del") {
         if (ansDisplay.textContent === "" || (ansDisplay.textContent !== "" && operating === true)) {
             if (display.textContent.charAt(display.textContent.length - 1) === "S") {
                 display.textContent = `${display.textContent.substring(0, display.textContent.length - 3)}`;
@@ -172,6 +216,8 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
                 decimal[position] = false;
             } else if (sign.includes(display.textContent.charAt(display.textContent.length - 1))) {
                 console.log("testing this");
+                single = true;
+                operating = false;
                 display.textContent = `${display.textContent.substring(0, display.textContent.length - 1)}`;
                 decimal[position] = false;
                 position = 0;
@@ -191,12 +237,13 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
         //     ansDisplay.textContent = "";
         //     operating = false;
         // }
-    } else if (btn.id === "equals") {
-        if (operating === false) {
+    } else if (inputId === "equals") {
+        if (single === true) {
             ans = Math.round(parseFloat(display.textContent === 'ANS' ? ans : display.textContent) * 10) / 10;
             ansDisplay.textContent = ans;
-            console.log('here');
+            console.log(operating);
         } else {
+            console.log("no");
             if (doubling !== true) {
                 const index = [...display.textContent].findIndex(char => sign.includes(char));
                 let firstNum = display.textContent.substring(0, index);
@@ -210,10 +257,10 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
                 ans = NaN;
                 doubling = false;
             }
-            decimal = false;
+            decimal[position] = false;
             position = 0;
         }
-    } else if (btn.id === "ans") {
+    } else if (inputId === "ans") {
         if (ansDisplay.textContent !== "" && operating === false) {
             display.textContent = "ANS";
             ansDisplay.textContent = "";
@@ -225,12 +272,11 @@ btnPress.forEach(btn => {btn.addEventListener("click", () => {
             ansDisplay.textContent = "";
             display.textContent += "ANS";
         }
-    } else if (btn.id === "decimal") {
+    } else if (inputId === "decimal") {
         if (decimal[position] !== true) {
-            console.log(position);
             console.log(decimal[position]);
             display.textContent += `.`;
-            decimal = true;
+            decimal[position] = true;
         }
     }
-})});
+}
